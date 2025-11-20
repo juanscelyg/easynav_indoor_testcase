@@ -1,0 +1,106 @@
+maps_manager_node:
+  ros__parameters:
+    use_sim_time: true
+    map_types: [costmap]
+    costmap:
+      freq: 10.0 
+      plugin: easynav_costmap_maps_manager/CostmapMapsManager
+      package: easynav_outdoor_testcase
+      map_path_file: maps/home.yaml
+      filters: [inflation, obstacles]
+      inflation:
+        plugin: easynav_costmap_maps_manager/CostmapMapsManager/InflationFilter
+        inflation_radius: 0.3         # default in code
+        cost_scaling_factor: 3.0      # default in code
+      obstacles:
+        plugin: easynav_costmap_maps_manager/CostmapMapsManager/ObstaclesFilter
+
+localizer_node:
+  ros__parameters:
+    use_sim_time: true
+    localizer_types: [costmap]
+    costmap:
+      rt_freq: 50.0
+      freq: 5.0
+      reseed_freq: 0.1
+      plugin: easynav_costmap_localizer/AMCLLocalizer
+      num_particles: 100
+      noise_translation: 0.1
+      noise_rotation: 0.03
+      noise_translation_to_rotation: 0.02
+      min_noise_xy: 0.2
+      min_noise_yaw: 0.1
+      compute_odom_from_tf: true 
+      initial_pose:
+        x: 0.0
+        y: 0.0
+        yaw: 0.0
+        std_dev_xy: 0.05
+        std_dev_yaw: 0.01
+
+planner_node:
+  ros__parameters:
+    use_sim_time: true
+    planner_types: [astar]
+    astar:
+      plugin: easynav_costmap_planner/CostmapPlanner
+      cost_factor: 2.0
+      inflation_penalty: 5.0
+      cost_axial: 1.0
+      cost_diagonal: 1.41
+      continuous_replan: true
+
+# controller_node:
+#   ros__parameters:
+#     use_sim_time: true
+#     controller_types: [mppi]
+#     mppi:
+#       plugin: easynav_mppi_controller/MPPIController
+#       num_samples: 100
+#       horizon_steps: 10	
+#       dt:	0.1	
+#       lambda:	0.1	
+#       max_linear_velocity:	1.0	
+#       max_angular_velocity:	1.0	
+#       max_linear_acceleration:	0.5	
+#       max_angular_acceleration:	1.0	
+#       fov:	1.57	
+#       safety_radius:	0.6	
+
+controller_node:
+  ros__parameters:
+    use_sim_time: true
+    colision_checker:
+      active: false 
+    controller_types: [mpc]
+    mpc:
+      plugin: easynav_mpc_controller/MPCController
+      verbose: true
+      horizon_steps: 5	
+      dt:	0.1	
+      max_linear_velocity:	0.5	
+      max_angular_velocity:	0.5
+
+sensors_node:
+  ros__parameters:
+    use_sim_time: true
+    forget_time: 0.5
+    sensors: [laser, camera, imu]
+    perception_default_frame: odom
+    laser:
+      topic: front_laser_sensor/points
+      type: sensor_msgs/msg/PointCloud2
+    camera:
+      topic: front_camera/depth/color/points
+      type: sensor_msgs/msg/PointCloud2
+    imu:
+      topic: imu/data
+      type: sensor_msgs/msg/Imu 
+
+system_node:
+  ros__parameters:
+    use_sim_time: true
+    use_real_time: false
+    position_tolerance: 0.3
+    angle_tolerance: 0.15
+    
